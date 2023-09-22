@@ -11,7 +11,7 @@ chunk_size_feed_forward: 0
 cross_attention_hidden_size: null
 cross_attention_shape_for_attention: kv
 cross_attention_widening_factor: 1
-d_latents: 8
+d_latents: 4
 d_model: 704
 decoder_start_token_id: null
 diversity_penalty: 0.0
@@ -1442,7 +1442,7 @@ num_beams: 1
 num_blocks: 1
 num_cross_attention_heads: 1
 num_frames: 16
-num_latents: 32
+num_latents: 16
 num_return_sequences: 1
 num_self_attends_per_block: 8
 num_self_attention_heads: 8

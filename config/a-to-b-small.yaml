@@ -1,0 +1,228 @@
+_name_or_path: deepmind/multimodal-perceiver
+add_cross_attention: false
+architectures:
+- PerceiverForMultimodalAutoencoding
+attention_probs_dropout_prob: 0.1
+audio_samples_per_frame: 1920
+bad_words_ids: null
+begin_suppress_tokens: null
+bos_token_id: null
+chunk_size_feed_forward: 0
+cross_attention_hidden_size: null
+cross_attention_shape_for_attention: kv
+cross_attention_widening_factor: 1
+d_latents: 4
+d_model: 704
+decoder_start_token_id: null
+diversity_penalty: 0.0
+do_sample: false
+early_stopping: false
+encoder_no_repeat_ngram_size: 0
+eos_token_id: null
+exponential_decay_length_penalty: null
+finetuning_task: null
+forced_bos_token_id: null
+forced_eos_token_id: null
+hidden_act: gelu
+id2label:
+  0: abseiling
+  1: acting_in_play
+  2: adjusting_glasses
+  3: air_drumming
+  4: alligator_wrestling
+  5: answering_questions
+  6: applauding
+  7: applying_cream
+  8: archaeological_excavation
+  9: archery
+  10: arguing
+  11: arm_wrestling
+  12: arranging_flowers
+  13: arresting
+  14: assembling_bicycle
+  15: assembling_computer
+  16: attending_conference
+  17: auctioning
+  18: baby_waking_up
+  19: backflip_human
+  20: baking_cookies
+  21: bandaging
+  22: barbequing
+  23: bartending
+  24: base_jumping
+  25: bathing_dog
+  26: battle_rope_training
+  27: beatboxing
+  28: bee_keeping
+  29: being_excited
+  30: being_in_zero_gravity
+  31: belly_dancing
+  32: bench_pressing
+  33: bending_back
+  34: bending_metal
+  35: biking_through_snow
+  36: blasting_sand
+  37: blending_fruit
+  38: blowdrying_hair
+  39: blowing_bubble_gum
+  40: blowing_glass
+  41: blowing_leaves
+  42: blowing_nose
+  43: blowing_out_candles
+  44: bobsledding
+  45: bodysurfing
+  46: bookbinding
+  47: bottling
+  48: bouncing_ball_not_juggling
+  49: bouncing_on_bouncy_castle
+  50: bouncing_on_trampoline
+  51: bowling
+  52: braiding_hair
+  53: breading_or_breadcrumbing
+  54: breakdancing
+  55: breaking_boards
+  56: breaking_glass
+  57: breathing_fire
+  58: brush_painting
+  59: brushing_floor
+  60: brushing_hair
+  61: brushing_teeth
+  62: building_cabinet
+  63: building_lego
+  64: building_sandcastle
+  65: building_shed
+  66: bulldozing
+  67: bungee_jumping
+  68: burping
+  69: busking
+image_size: 56
+initializer_range: 0.02
+is_decoder: false
+is_encoder_decoder: false
+label2id:
+  abseiling: 0
+  acting_in_play: 1
+  adjusting_glasses: 2
+  air_drumming: 3
+  alligator_wrestling: 4
+  answering_questions: 5
+  applauding: 6
+  applying_cream: 7
+  archaeological_excavation: 8
+  archery: 9
+  arguing: 10
+  arm_wrestling: 11
+  arranging_flowers: 12
+  arresting: 13
+  assembling_bicycle: 14
+  assembling_computer: 15
+  attending_conference: 16
+  auctioning: 17
+  baby_waking_up: 18
+  backflip_human: 19
+  baking_cookies: 20
+  bandaging: 21
+  barbequing: 22
+  bartending: 23
+  base_jumping: 24
+  bathing_dog: 25
+  battle_rope_training: 26
+  beatboxing: 27
+  bee_keeping: 28
+  being_excited: 29
+  being_in_zero_gravity: 30
+  belly_dancing: 31
+  bench_pressing: 32
+  bending_back: 33
+  bending_metal: 34
+  biking_through_snow: 35
+  blasting_sand: 36
+  blending_fruit: 37
+  blowdrying_hair: 38
+  blowing_bubble_gum: 39
+  blowing_glass: 40
+  blowing_leaves: 41
+  blowing_nose: 42
+  blowing_out_candles: 43
+  bobsledding: 44
+  bodysurfing: 45
+  bookbinding: 46
+  bottling: 47
+  bouncing_ball_not_juggling: 48
+  bouncing_on_bouncy_castle: 49
+  bouncing_on_trampoline: 50
+  bowling: 51
+  braiding_hair: 52
+  breading_or_breadcrumbing: 53
+  breakdancing: 54
+  breaking_boards: 55
+  breaking_glass: 56
+  breathing_fire: 57
+  brush_painting: 58
+  brushing_floor: 59
+  brushing_hair: 60
+  brushing_teeth: 61
+  building_cabinet: 62
+  building_lego: 63
+  building_sandcastle: 64
+  building_shed: 65
+  bulldozing: 66
+  bungee_jumping: 67
+  burping: 68
+  busking: 69
+layer_norm_eps: 1.0e-12
+length_penalty: 1.0
+max_length: 20
+max_position_embeddings: 2048
+min_length: 0
+model_type: perceiver
+no_repeat_ngram_size: 0
+num_beam_groups: 1
+num_beams: 1
+num_blocks: 1
+num_cross_attention_heads: 1
+num_frames: 16
+num_latents: 16
+num_return_sequences: 1
+num_self_attends_per_block: 8
+num_self_attention_heads: 8
+output_attentions: false
+output_hidden_states: false
+output_scores: false
+output_shape:
+- 1
+- 16
+- 224
+- 224
+pad_token_id: null
+prefix: null
+problem_type: null
+pruned_heads: {}
+qk_channels: null
+remove_invalid_values: false
+repetition_penalty: 1.0
+return_dict: true
+return_dict_in_generate: false
+samples_per_patch: 16
+self_attention_widening_factor: 1
+sep_token_id: null
+suppress_tokens: null
+task_specific_params: null
+temperature: 1.0
+tf_legacy_loss: false
+tie_encoder_decoder: false
+tie_word_embeddings: true
+tokenizer_class: null
+top_k: 50
+top_p: 1.0
+torch_dtype: float32
+torchscript: false
+train_size:
+- 368
+- 496
+transformers_version: 4.30.1
+typical_p: 1.0
+use_bfloat16: false
+use_query_residual: true
+v_channels: null
+vocab_size: 262

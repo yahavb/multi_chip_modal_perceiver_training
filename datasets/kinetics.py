@@ -9,7 +9,8 @@ from torchvision.transforms import Resize
 from typing import Tuple
 
 
-_ROOT = "/home/ubuntu/examples_datasets/kinetics"
+#_ROOT = "/home/ubuntu/examples_datasets"
+_ROOT = "/home/ubuntu/dataset"
 _TRAIN_METADATA_FILE = "train_metadata.th"
 _TRAIN_METADATA_FILE_SAMPLED = "train_metadata_sampled.th"
 _VAL_METADATA_FILE = "val_metadata.th"
@@ -76,12 +77,14 @@ class PreprocessedKinetics(Kinetics):
     video, audio, label = super().__getitem__(idx)
     video = self.video_transformer(video) / 256.
     audio = self.audio_transformer(audio)
+    #print(f"before torch.nn.functional.one_hot, label:{label},num_classes:{self.num_classes}")
     label = torch.nn.functional.one_hot(torch.tensor(label), num_classes=int(self.num_classes)).float()
     output = {
       "image": video,
       "audio": audio,
       "label": label,
     }
+    #print(f"in PreprocessedKinetics: one_hot output:{output}")
     return output 
 
 
@@ -99,6 +102,7 @@ def build_dataset(split, root, metadata_filename, num_workers, debug=False, cach
     print(f"Loading dataset_train from {cache_path}")
     dataset, _ = torch.load(cache_path)
   else:
+    print(f"No dataset_train from {cache_path}, going to create dataset from PreprocessedKinetics")
     dataset = PreprocessedKinetics(
       root=root,
       frames_per_clip=_FRAMES_PER_CLIP,
@@ -122,6 +126,7 @@ def build_train_dataset(num_workers=1, root=_ROOT, debug=False, cache_dataset=Tr
     metadata_filename = _TRAIN_METADATA_FILE_SAMPLED
   else:
     metadata_filename = _TRAIN_METADATA_FILE
+  print(f"build_train_dataset with metadata_filename:{metadata_filename}, num_workers:{num_workers}, root:{root}, debug:{debug}, cache_dataset:{cache_dataset}")
   return build_dataset("train", root, metadata_filename, num_workers, debug, cache_dataset)
 
 def build_val_dataset(num_workers=1, root=_ROOT, debug=False, cache_dataset=True):
@@ -129,4 +134,5 @@ def build_val_dataset(num_workers=1, root=_ROOT, debug=False, cache_dataset=True
     metadata_filename = _VAL_METADATA_FILE_SAMPLED
   else:
     metadata_filename = _VAL_METADATA_FILE
+  print(f"build_val_dataset with metadata_filename:{metadata_filename}, num_workers:{num_workers}, root:{root}, debug:{debug}, cache_dataset:{cache_dataset}")
   return build_dataset("val", root, metadata_filename, num_workers, debug, cache_dataset)

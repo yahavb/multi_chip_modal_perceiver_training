@@ -100,14 +100,14 @@ class SyntheticDataset(Dataset):
     }
 
 def train():
-  print('==> Preparing data..')
+  print(f"==> Preparing data.FLAGS.dataset:{FLAGS.dataset},dataset_dir:'{FLAGS.dataset_dir}")
   is_root = xm.is_master_ordinal(local=False)
   if FLAGS.dataset == "synthetic":
     train_dataset = SyntheticDataset()
     valid_dataset = SyntheticDataset()
   elif FLAGS.dataset  == "kinetics-small":
-    train_dataset = build_train_dataset(num_workers=64, root=FLAGS.dataset_dir, debug=True)
-    valid_dataset = build_val_dataset(num_workers=64, root=FLAGS.dataset_dir, debug=True)
+    train_dataset = build_train_dataset(num_workers=3, root=FLAGS.dataset_dir, debug=True)
+    valid_dataset = build_val_dataset(num_workers=3, root=FLAGS.dataset_dir, debug=True)
   elif FLAGS.dataset == "kinetics":
     train_dataset = build_train_dataset(num_workers=64, root=FLAGS.dataset_dir, debug=False)
     valid_dataset = build_val_dataset(num_workers=64, root=FLAGS.dataset_dir, debug=False)
@@ -210,11 +210,15 @@ def train():
     model.eval()
     with torch.no_grad():
       for step, data in enumerate(loader):
-        output = model(data)
+        # sample outputs from the input
+        sampled_idx, sampled_y = multimodal_output_sampler(data)
+        
+        output = model(data, subsampled_output_points=sampled_idx)
+        #output = model(data)
         logits = output if isinstance(output, torch.Tensor) else output.logits
-        loss_image = torch.nn.L1Loss()(logits['image'], y['image'])
-        loss_audio = torch.nn.L1Loss()(logits['audio'], y['audio'])
-        loss_label = torch.nn.CrossEntropyLoss()(logits['label'], y['label'])
+        loss_image = torch.nn.L1Loss()(logits['image'],sampled_y['image'])
+        loss_audio = torch.nn.L1Loss()(logits['audio'],sampled_y['audio'])
+        loss_label = torch.nn.CrossEntropyLoss()(logits['label'],sampled_y['label'])
 
         loss_weight_image = 0.03
         loss_weight_audio = 1.0
@@ -246,7 +250,6 @@ def train():
   
   if is_root:
     time_to_train = time.time() - train_start
-
   if FLAGS.do_eval:
     if is_root:
       throughput = train_utils.Throughput(FLAGS.batch_size, xm.xrt_world_size(), FLAGS.log_steps)
