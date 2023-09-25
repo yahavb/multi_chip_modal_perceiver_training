@@ -76,10 +76,10 @@ class ThroughputCallback(Callback):
       print(f"  Peak throughput {self.max_throughput}, seq/s")
 
   def on_train_end(self, trainer, pl_module):
-    if state.is_local_process_zero:
-      logger.info("***** Training Throughput stats*****")
-      logger.info(f"  Average throughput {self.average_throughput}, seq/s")
-      logger.info(f"  Peak throughput {self.max_throughput}, seq/s")
+    #if state.is_local_process_zero:
+      print("***** Training Throughput stats*****")
+      print(f"  Average throughput {self.average_throughput}, seq/s")
+      print(f"  Peak throughput {self.max_throughput}, seq/s")
 
       # for some reason logs are not showing, so print it
       print(f"  Average throughput {self.average_throughput}, seq/s")

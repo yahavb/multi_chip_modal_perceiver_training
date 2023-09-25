@@ -1,7 +1,7 @@
 from typing import Dict
 
 from einops import rearrange
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 import torch
 import torch.nn as nn
 from transformers import PerceiverForMultimodalAutoencoding
@@ -42,7 +42,6 @@ class MultimodalOutputSampler:
         "audio": torch.randint(low=0, high=self.audio_size, size=(self.num_samples,)),
         "label": None,
     }
-    #print(f'Random idx: {str(idx)}')
     audio_patch_samples = rearrange(x["audio"], "b (t dt) -> b t dt", dt=self.audio_patch_size)[:, idx["audio"]]
     y = {
         "image": rearrange(x["image"], "b t c h w -> b (t h w) c")[:, idx["image"], :],
@@ -98,7 +97,7 @@ class LitTransformersAutoencodingPerceiverIO(pl.LightningModule):
         # compute loss
         loss = self.loss(y_hat, sampled_y)
 
-        self.log('train/loss', loss, on_step=True, prog_bar=True)
+        self.log('train/loss', loss, prog_bar=True)
 
         return loss
 
@@ -118,3 +117,4 @@ class LitTransformersAutoencodingPerceiverIO(pl.LightningModule):
 
     def configure_optimizers(self):
         return torch.optim.AdamW(self.parameters(), lr=self.learning_rate, weight_decay=0.1)
+

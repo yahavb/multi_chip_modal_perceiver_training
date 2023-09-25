@@ -12,6 +12,7 @@ from lightning.pytorch.loggers import (
 import torch
 torch.manual_seed(42)
 from torch.utils.data import Dataset, DataLoader
+from torch.utils.data.distributed import DistributedSampler
 from transformers import PerceiverForMultimodalAutoencoding
 
 from datasets.kinetics import build_train_dataset
@@ -61,30 +62,53 @@ def run(
     elif dataset == "kinetics-small":
       train_dataset = build_train_dataset(num_workers=120, root=dataset_dir, debug=True)
       valid_dataset = build_val_dataset(num_workers=120, root=dataset_dir, debug=True)
+      # train_dataset = valid_dataset
     elif dataset == "kinetics":
       train_dataset = build_train_dataset(num_workers=120, root=dataset_dir, debug=False)
       valid_dataset = build_val_dataset(num_workers=120, root=dataset_dir, debug=False)
+      # train_dataset = valid_dataset
     else:
       raise NotImplementedError(f"unhandled dataset type: {dataset}")
+    
+    rank = int(os.environ['RANK'])
+    world_size = int(os.environ['WORLD_SIZE'])
+
+    # if os.environ.get("WORLD_SIZE"):
+    #   world_size = int(os.environ['WORLD_SIZE'])
+    # else:
+    #   world_size = int(os.environ['GPU_NUM_DEVICES'])
+
+    # rank = int(os.environ['RANK'])
+    # train_sampler, valid_sampler = None, None
+    # if world_size > 1:
+    #   train_sampler = DistributedSampler(
+    #     train_dataset,
+    #     num_replicas=world_size,
+    #     rank=rank,
+    #     shuffle=True)
+    #   valid_sampler = DistributedSampler(
+    #     valid_dataset,
+    #     num_replicas=world_size,
+    #     rank=rank,
+    #     shuffle=False)
 
     dataloader_train = DataLoader(
       train_dataset, 
       batch_size=batch_size, 
-      num_workers=4, 
-      prefetch_factor=4,
+      num_workers=8, 
+      prefetch_factor=8,
       pin_memory=True,
-      shuffle=True, 
+      shuffle=False,
     )
     dataloader_valid = DataLoader(
       valid_dataset, 
       batch_size=batch_size, 
-      num_workers=4, 
-      prefetch_factor=4,
+      num_workers=8, 
+      prefetch_factor=8,
       pin_memory=True,
     )
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
 
     config = load_config(config_file_path)
     model = PerceiverForMultimodalAutoencoding(config)
@@ -102,10 +126,9 @@ def run(
     )
 
     loggers = []
-    logger_tb = TensorBoardLogger(save_dir=os.getcwd(), version=1, name='lightning_logs')
-    loggers.append(logger_tb)
-
-    if wandb_enabled:
+    if wandb_enabled and rank == 0:
+      logger_tb = TensorBoardLogger(save_dir=os.getcwd(), version=1, name='lightning_logs')
+      loggers.append(logger_tb)
       logger_wandb = WandbLogger()
       logger_wandb.log_hyperparams(dict(
           config_file_path=config_file_path,
@@ -119,13 +142,10 @@ def run(
       logger_wandb.log_hyperparams(config.to_dict())
       loggers.append(logger_wandb)
 
-
-    if os.environ.get("WORLD_SIZE"):
-      world_size = int(os.environ['WORLD_SIZE'])
-    else:        
-      world_size = int(os.environ['GPU_NUM_DEVICES'])
-    
     trainer = Trainer(
+      # accelerator="gpu",
+      # devices=8, 
+      # strategy="ddp",
       max_epochs=num_epochs,
       logger=loggers, 
       log_every_n_steps=20,
@@ -154,7 +174,7 @@ if __name__ == '__main__':
       "-r",
       "--dataset_dir",
       type=str,
-      default="/home/ubuntu/examples_datasets/kinetics",
+      default="/home/ubuntu/dataset",
       help="Dataset directory")
     parser.add_argument(
       "-b",
@@ -186,12 +206,12 @@ if __name__ == '__main__':
       type=str,
       default="config/main.yaml",
       help="Model config file path")
-    parser.add_argument(
-      "-ws",
-      "--wandb_secret_name",
-      type=str,
-      default="jmaojones-wandb-key-gcp",
-      help="Spookey secret name storing wandb API Key")
+    # parser.add_argument(
+    #   "-ws",
+    #   "--wandb_secret_name",
+    #   type=str,
+    #   default="jmaojones-wandb-key-gcp",
+    #   help="Spookey secret name storing wandb API Key")
     parser.add_argument(
       "-wp",
       "--wandb_project",
@@ -204,13 +224,13 @@ if __name__ == '__main__':
     try:
       from snap.perceiver.util.wandb_util import set_env_vars
       set_env_vars(
-        secret_name=config.pop("wandb_secret_name"),
+        # secret_name=config.pop("wandb_secret_name"),
         project=config.pop("wandb_project"),
       )
       config["wandb_enabled"] = True
 
     except ModuleNotFoundError:
-      config.pop("wandb_secret_name"),
+      # config.pop("wandb_secret_name"),
       config.pop("wandb_project"),
       config["wandb_enabled"] = False
 
