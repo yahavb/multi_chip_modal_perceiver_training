@@ -230,6 +230,9 @@ def train():
           logger.test_throughputs.append(step_throughput)
           if step % FLAGS.log_steps == 0:
             logger.print_test_update(device, step_throughput, None, epoch, step)
+        if step >= FLAGS.max_steps:
+          xm.mark_step()
+          break
     return loss
 
   train_device_loader = pl.MpDeviceLoader(train_loader, device)
